@@ -1,10 +1,11 @@
 import {View, Text} from 'react-native';
 import React from 'react';
+import CameraScreen from '../components/CameraScreen';
 
 const Recognize = () => {
   return (
-    <View>
-      <Text>연출의 화면test</Text>
+    <View style={{flex: 1}}>
+      <CameraScreen />
     </View>
   );
 };
