@@ -9,11 +9,12 @@ import {
   Image,
 } from 'react-native';
 import {Camera, useCameraDevices} from 'react-native-vision-camera';
+import * as RNFS from 'react-native-fs';
 
 const CameraScreen = () => {
   const camera = useRef(null);
   const devices = useCameraDevices();
-  const device = devices.back;
+  const device = devices.front;
 
   const [showCamera, setShowCamera] = useState(false);
   const [imageSource, setImageSource] = useState('');
@@ -27,12 +28,23 @@ const CameraScreen = () => {
   }, []);
 
   const capturePhoto = async () => {
-    if (camera.current !== null) {
-      const photo = await camera.current.takePhoto({});
-      setImageSource(photo.path);
-      setShowCamera(false);
-      console.log(photo.path);
-    }
+    if (camera.current == null) return;
+    const photo = await camera.current.takePhoto({});
+    setImageSource(photo.path);
+    setShowCamera(false);
+    console.log(photo.path);
+
+    await RNFS.moveFile(
+      `/${photo.path}`,
+      `${RNFS.PicturesDirectoryPath}/temp.jpg`,
+    ).then(() =>
+      console.log(
+        'lmage Moved ',
+        `${photo.path}`,
+        '--to--',
+        `${RNFS.PicturesDirectoryPath}`,
+      ),
+    );
   };
 
   if (device == null) {
@@ -82,7 +94,9 @@ const CameraScreen = () => {
                 width: 100,
               }}
               onPress={() => setShowCamera(true)}>
-              <Text style={{color: 'white', fontWeight: '500'}}>Back</Text>
+              <Text style={{color: 'white', fontWeight: '500'}}>
+                {imageSource}
+              </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.buttonContainer}>
