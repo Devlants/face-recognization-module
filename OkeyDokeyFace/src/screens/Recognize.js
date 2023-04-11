@@ -4,7 +4,7 @@ import React from 'react';
 const Recognize = () => {
   return (
     <View>
-      <Text>연출의 화면</Text>
+      <Text>연출의 화면test</Text>
     </View>
   );
 };
