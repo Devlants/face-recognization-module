@@ -11,20 +11,23 @@ const PhotoList = ({route, navigation}) => {
     try {
       var body = new FormData();
       var photo = {
-        uri: photos[0],
+        uri: imageDataList[0],
         type: 'multipart/form-data',
         name: 'test.jpg',
       };
       body.append('image', photo);
 
-      await axios.post('http://127.0.0.1:8080/server/image', body, {
-        headers: {'content-type': 'multipart/form-data'},
+      await axios.post('http://192.168.0.15:8080/server/register', body, {
+        headers: {'Content-Type': 'multipart/form-data'},
+        transformRequest: formData => formData,
+        withCredentials: true,
       });
 
       console.log('🥹 image upload complete!');
     } catch (error) {
       console.log('😛 Error :', error);
     }
+    console.log(imageDataList[0]);
   };
 
   const getFileContent = async source => {
