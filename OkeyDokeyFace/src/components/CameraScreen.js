@@ -12,7 +12,7 @@ import {Camera, useCameraDevices} from 'react-native-vision-camera';
 import {useNavigation} from '@react-navigation/native';
 import * as RNFS from 'react-native-fs';
 
-const CameraScreen = () => {
+const CameraScreen = ({state}) => {
   const navigation = useNavigation();
   const camera = useRef(null);
   const devices = useCameraDevices();
@@ -21,7 +21,7 @@ const CameraScreen = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [imageSource, setImageSource] = useState(null);
   const [photos, setPhotos] = useState([]); // 보낼 사진들 빈 배열로 초기화
-
+  const [imageObject, setImageObject] = useState('');
   useEffect(() => {
     async function getPermission() {
       const newCameraPermission = await Camera.requestCameraPermission();
@@ -29,6 +29,22 @@ const CameraScreen = () => {
     }
     getPermission();
   }, []);
+
+  //김연출의 키오스크 사진 보내기
+  const uploadData = async () => {
+    // 폼데이터 생성
+    var body = new FormData();
+    var photo = {
+      uri: imageSource,
+      type: 'multipart/form-data',
+      name: `${imageObject}.jpg`,
+    };
+    body.append('image', photo);
+    // 서버에게 전송
+    axios.post('serverUrl', body, {
+      headers: {'content-type': 'multipart/form-data'},
+    });
+  };
 
   const capturePhoto = async () => {
     if (camera.current == null) {
@@ -39,7 +55,10 @@ const CameraScreen = () => {
     setImageSource(photo.path);
     console.log(photo.path);
     setPhotos(prevPhotos => [...prevPhotos, photo.path]);
-
+    if (state == 1) {
+      setImageObject(photo);
+      uploadData();
+    }
     // await RNFS.moveFile(
     //   `/${photo.path}`,
     //   `${RNFS.PicturesDirectoryPath}/temp.jpg`,

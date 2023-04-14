@@ -5,7 +5,7 @@ import CameraScreen from '../components/CameraScreen';
 const Recognize = () => {
   return (
     <View style={{flex: 1}}>
-      <CameraScreen />
+      <CameraScreen state={1} />
     </View>
   );
 };
