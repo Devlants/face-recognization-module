@@ -6,6 +6,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import Home from './src/screens/Home';
 import Register from './src/screens/Register';
 import Recognize from './src/screens/Recognize';
+import PhotoList from './src/screens/PhotoList';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -29,6 +30,7 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
+        <Stack.Screen name="PhotoList" component={PhotoList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
