@@ -9,15 +9,18 @@ import {
   Image,
 } from 'react-native';
 import {Camera, useCameraDevices} from 'react-native-vision-camera';
+import {useNavigation} from '@react-navigation/native';
 import * as RNFS from 'react-native-fs';
 
 const CameraScreen = () => {
+  const navigation = useNavigation();
   const camera = useRef(null);
   const devices = useCameraDevices();
   const device = devices.front;
 
   const [showCamera, setShowCamera] = useState(false);
-  const [imageSource, setImageSource] = useState('');
+  const [imageSource, setImageSource] = useState(null);
+  const [photos, setPhotos] = useState([]); // 보낼 사진들 빈 배열로 초기화
 
   useEffect(() => {
     async function getPermission() {
@@ -28,23 +31,41 @@ const CameraScreen = () => {
   }, []);
 
   const capturePhoto = async () => {
-    if (camera.current == null) return;
+    if (camera.current == null) {
+      return;
+    }
+
     const photo = await camera.current.takePhoto({});
     setImageSource(photo.path);
-    setShowCamera(false);
     console.log(photo.path);
+    setPhotos(prevPhotos => [...prevPhotos, photo.path]);
 
-    await RNFS.moveFile(
-      `/${photo.path}`,
-      `${RNFS.PicturesDirectoryPath}/temp.jpg`,
-    ).then(() =>
-      console.log(
-        'lmage Moved ',
-        `${photo.path}`,
-        '--to--',
-        `${RNFS.PicturesDirectoryPath}`,
-      ),
-    );
+    // await RNFS.moveFile(
+    //   `/${photo.path}`,
+    //   `${RNFS.PicturesDirectoryPath}/temp.jpg`,
+    // ).then(() =>
+    //   console.log(
+    //     'lmage Moved ',
+    //     `${photo.path}`,
+    //     '--to--',
+    //     `${RNFS.PicturesDirectoryPath}`,
+    //   ),
+    // );
+  };
+
+  const startInterval = count => {
+    setShowCamera(true);
+    setPhotos([]);
+    let i = 0;
+    const id = setInterval(async () => {
+      if (i < count) {
+        await capturePhoto();
+        i++;
+      } else {
+        clearInterval(id);
+        setShowCamera(false);
+      }
+    }, 1000);
   };
 
   if (device == null) {
@@ -55,45 +76,75 @@ const CameraScreen = () => {
     <View style={styles.container}>
       {showCamera ? (
         <>
-          <Camera
-            ref={camera}
-            style={{width: 300, height: 300}}
-            device={device}
-            isActive={showCamera}
-            photo={true}
-          />
+          <View style={{position: 'relative', width: 300, height: 300}}>
+            <Camera
+              ref={camera}
+              style={{width: 300, height: 300}}
+              device={device}
+              isActive={showCamera}
+              photo={true}
+            />
+            <View
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text style={{color: 'white'}}>정면을 응시해 주세요</Text>
+            </View>
+          </View>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.camButton}
-              onPress={() => capturePhoto()}
+              onPress={() => {
+                capturePhoto();
+                setShowCamera(false);
+              }}
             />
           </View>
         </>
       ) : (
         <>
-          {imageSource !== '' ? (
+          {imageSource !== null ? (
             <Image
               style={styles.image}
               source={{
                 uri: `file://'${imageSource}`,
               }}
             />
-          ) : null}
-
-          <View style={styles.backButton}>
-            <TouchableOpacity
+          ) : (
+            <View
               style={{
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                padding: 10,
+                flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                borderRadius: 10,
-                borderWidth: 2,
-                borderColor: '#fff',
-                width: 100,
-              }}
-              onPress={() => setShowCamera(true)}>
+              }}>
+              <Text style={{justifyContent: 'center', alignItems: 'center'}}>
+                얼굴을 등록하지 않으면 서비스 이용이 불가능합니다.
+              </Text>
+              <View style={styles.backButton}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#056CF2',
+                    padding: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    width: 100,
+                  }}>
+                  <Text style={{color: 'white', fontWeight: '500'}}>확인</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.button}>
+            <TouchableOpacity>
               <Text style={{color: 'white', fontWeight: '500'}}>
                 {imageSource}
               </Text>
@@ -113,7 +164,7 @@ const CameraScreen = () => {
                 }}
                 onPress={() => setShowCamera(true)}>
                 <Text style={{color: '#77c3ec', fontWeight: '500'}}>
-                  Retake
+                  다시찍기
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -126,9 +177,28 @@ const CameraScreen = () => {
                   borderWidth: 2,
                   borderColor: 'white',
                 }}
-                onPress={() => setShowCamera(true)}>
+                onPress={() => startInterval(5)}>
                 <Text style={{color: 'white', fontWeight: '500'}}>
-                  Use Photo
+                  여러번 찍기
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#77c3ec',
+                  padding: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: 'white',
+                }}
+                onPress={() => {
+                  navigation.push('PhotoList', {
+                    photos: photos,
+                  });
+                }}>
+                <Text style={{color: 'white', fontWeight: '500'}}>
+                  사진 확인하기
                 </Text>
               </TouchableOpacity>
             </View>
@@ -146,11 +216,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
+    position: 'absolute',
     backgroundColor: 'gray',
+    top: 0,
+    padding: 20,
   },
   backButton: {
     backgroundColor: 'rgba(0,0,0,0.0)',
-    position: 'absolute',
+    position: 'relative',
+    alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     top: 0,
