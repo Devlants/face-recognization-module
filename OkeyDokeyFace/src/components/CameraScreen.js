@@ -18,7 +18,6 @@ const CameraScreen = () => {
 
   const [showCamera, setShowCamera] = useState(false);
   const [imageSource, setImageSource] = useState('');
-  const [imageObject, setImageObject] = useState('');
 
   useEffect(() => {
     async function getPermission() {
@@ -28,28 +27,13 @@ const CameraScreen = () => {
     getPermission();
   }, []);
 
-  const uploadData = async () => {
-    // 폼데이터 생성
-    var body = new FormData();
-    var photo = {
-      uri: imageSource,
-      type: 'multipart/form-data',
-      name: `${imageObject}.jpg`,
-    };
-    body.append('image', photo);
-    // 서버에게 전송
-    axios.post('serverUrl', body, {
-      headers: {'content-type': 'multipart/form-data'},
-    });
-  };
   const capturePhoto = async () => {
     if (camera.current == null) return;
     const photo = await camera.current.takePhoto({});
     setImageSource(photo.path);
-    setImageObject(photo);
     setShowCamera(false);
     console.log(photo.path);
-    uploadData();
+
     await RNFS.moveFile(
       `/${photo.path}`,
       `${RNFS.PicturesDirectoryPath}/temp.jpg`,
