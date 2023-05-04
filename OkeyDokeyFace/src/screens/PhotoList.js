@@ -10,24 +10,24 @@ const PhotoList = ({route, navigation}) => {
   const uploadData = async () => {
     try {
       var body = new FormData();
-      var photo = {
-        uri: imageDataList[0],
-        type: 'multipart/form-data',
-        name: 'test.jpg',
-      };
-      body.append('image', photo);
+
+      imageDataList.map((imageData, index) => {
+        var photo = {
+          uri: imageData,
+          type: 'multipart/form-data',
+          name: `${index}.jpg`,
+        };
+        body.append('image', photo);
+      });
 
       await axios.post('http://192.168.0.15:8080/server/register', body, {
         headers: {'Content-Type': 'multipart/form-data'},
-        transformRequest: formData => formData,
-        withCredentials: true,
       });
 
       console.log('🥹 image upload complete!');
     } catch (error) {
       console.log('😛 Error :', error);
     }
-    console.log(imageDataList[0]);
   };
 
   const getFileContent = async source => {
