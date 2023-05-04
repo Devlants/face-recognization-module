@@ -7,6 +7,8 @@ import Home from './src/screens/Home';
 import Register from './src/screens/Register';
 import Recognize from './src/screens/Recognize';
 import PhotoList from './src/screens/PhotoList';
+import Sencor from './src/screens/Sencor';
+import Receipt from './src/screens/Receipt';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -31,6 +33,8 @@ const App = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="Bottom" component={BottomTabScreen} />
         <Stack.Screen name="PhotoList" component={PhotoList} />
+        <Stack.Screen name="Sencor" component={Sencor} />
+        <Stack.Screen name="Receipt" component={Receipt} />
       </Stack.Navigator>
     </NavigationContainer>
   );
