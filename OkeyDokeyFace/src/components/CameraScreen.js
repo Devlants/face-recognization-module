@@ -22,6 +22,7 @@ const CameraScreen = ({state}) => {
   const [imageSource, setImageSource] = useState(null);
   const [photos, setPhotos] = useState([]); // 보낼 사진들 빈 배열로 초기화
   const [imageObject, setImageObject] = useState('');
+
   useEffect(() => {
     async function getPermission() {
       const newCameraPermission = await Camera.requestCameraPermission();
@@ -55,6 +56,7 @@ const CameraScreen = ({state}) => {
     setImageSource(photo.path);
     console.log(photo.path);
     setPhotos(prevPhotos => [...prevPhotos, photo.path]);
+
     if (state == 1) {
       setImageObject(photo);
       uploadData();
