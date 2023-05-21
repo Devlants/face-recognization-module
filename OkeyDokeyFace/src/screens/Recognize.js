@@ -1,11 +1,11 @@
 import {View, Text} from 'react-native';
 import React from 'react';
-import CameraScreen from '../components/CameraScreen';
+import CameraScreenKiosk from '../components/CameraScreenKiosk';
 
 const Recognize = () => {
   return (
     <View style={{flex: 1}}>
-      <CameraScreen state={1} />
+      <CameraScreenKiosk />
     </View>
   );
 };

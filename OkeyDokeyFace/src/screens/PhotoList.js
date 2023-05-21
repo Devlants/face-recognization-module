@@ -20,7 +20,7 @@ const PhotoList = ({route, navigation}) => {
         body.append('image', photo);
       });
 
-      await axios.post('http://192.168.0.15:8080/server/register', body, {
+      await axios.post('http://192.168.201.12:8080/server/recog', body, {
         headers: {'Content-Type': 'multipart/form-data'},
       });
 
